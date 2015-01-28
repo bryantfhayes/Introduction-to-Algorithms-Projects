@@ -4,27 +4,29 @@
 #              various approaches to find the max sub array from
 #              a larger array.
 
-import os, sys, re
+import os, sys, re, random
 from optparse import OptionParser
 from time import time
 
 ################## SETUP ######################################
 # GLOBAL VARIABLES
 TEST_FILE = "mstest.txt"
+RAND_MIN = -1000
+RAND_MAX = 1000
 globalArray = []
 algorithmDictionary = {'1' : "Algorithm #1" , '2' : "Algorithm #2" , '3' : "Algorithm #3" , '4' : "Algorithm #4"}
 # Setup the option parser for choosing the algorithm
 parser = OptionParser()
-parser.add_option("-a", "--algorithm", dest="algorithm",
-                      help="choose which algorithm to execute",
-                      metavar="<1 2 3 4>")
 
-parser.add_option("-l", "--long",
-                      action="store_true", dest="long", default=False,
-                      help="use extended test file")
+parser.add_option("-a", "--algorithm", dest="algorithm", help="choose which algorithm to execute", metavar="<1 2 3 4>")
 
-parser.add_option("-q", "--quiet", action="store_true", dest="quiet",
-    default=False, help="do not show any success text")
+parser.add_option("-l", "--long", action="store_true", dest="long", default=False, help="use extended test file")
+
+parser.add_option("-q", "--quiet", action="store_true", dest="quiet", default=False, help="do not show any success text")
+
+parser.add_option("-f", "--file", action="store_true", dest="file", default=False, help="gather array data from file mstest.txt")
+
+parser.add_option("-t", "--test", dest="test", metavar="<#>", help="run test on 10 iterations of a randomly generated array of size '#'")
 
 (options, args) = parser.parse_args()
 
@@ -157,17 +159,58 @@ def algorithm4(array):
   runTime = t1 - t0
   return (maxSum, runTime)
 
+def generateArrays(n):
+  t0 = time()
+  tempArr1 = []
+  for i in xrange(10):
+    tempArr2 = []
+    for j in xrange(n):
+      tempArr2.append(random.randint(RAND_MIN, RAND_MAX))
+    tempArr1.append([tempArr2, 0])
+  t1 = time()
+  print "\nGenerated array of size %d in %lf seconds" % (n, t1-t0)
+  return tempArr1
+
+def verifyArgs():
+  if not options.file:
+    try:
+      options.test = int(options.test)
+    except:
+      print "-t arguement must be an integer"
+      exit()
+
+  if (not options.file) and (options.test == None):
+    print "Must include either -t or -f option"
+    exit()
+  elif (options.file) and (options.test != None):
+    print "Invalid arguement combination"
+    exit()
+  elif (options.test != None) and options.long:
+    print "Invalid argument combination"
+    exit()
+  elif options.long and (options.test != None):
+    print "Invalid arguement combination"
+    exit()
+  elif (not options.file) and options.test < 1:
+    print "-t arguement must be greater than 0"
+    exit()
+    
 def main():
   global globalArray
-
-  # Read the test cases from the test file and save to global 2D array
-  with open(TEST_FILE) as f:
-    for line in f:
-      (array, val) = extractArray(line)
-      globalArray.append([array, val])
-    # At this point globalArray contains all the arrays from the file in [x][0]
-    # and the corresponding max_sum in [x][1]
   
+  # Make sure all flag/arguement combinations are valid
+  verifyArgs()
+  
+  if options.file:
+    # Read the test cases from the test file and save to global 2D array
+    with open(TEST_FILE) as f:
+      for line in f:
+        (array, val) = extractArray(line)
+        globalArray.append([array, val])
+      # At this point globalArray contains all the arrays from the file in [x][0]
+      # and the corresponding max_sum in [x][1]
+  else:
+    globalArray = generateArrays(options.test)
 
   totalTime = 0
   totalTests = len(globalArray)
@@ -189,7 +232,7 @@ def main():
       print "No algorithm selected. Quitting..."
       exit()
     
-    if not options.quiet:
+    if not options.quiet and options.file:
       if maxSum == real_sum:
         print "SUCCESS. Time = " + str(runTime)
       else:
@@ -199,8 +242,8 @@ def main():
     
   print "\nResults for " + algorithmDictionary[options.algorithm] 
   print "=================================="
-  print "Total Time = " + str(totalTime)
-  print "Average Time per Iteration = " + str(totalTime / totalTests)
+  print "Total Time = " + str(totalTime) + "\n"
+  #print "Average Time per Iteration = " + str(totalTime / totalTests)
 
 if __name__ == "__main__":
   main()
