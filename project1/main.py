@@ -12,7 +12,7 @@ from time import time
 # GLOBAL VARIABLES
 TEST_FILE = "mstest.txt"
 globalArray = []
-
+algorithmDictionary = {'1' : "Algorithm #1" , '2' : "Algorithm #2" , '3' : "Algorithm #3" , '4' : "Algorithm #4"}
 # Setup the option parser for choosing the algorithm
 parser = OptionParser()
 parser.add_option("-a", "--algorithm", dest="algorithm",
@@ -22,6 +22,9 @@ parser.add_option("-a", "--algorithm", dest="algorithm",
 parser.add_option("-l", "--long",
                       action="store_true", dest="long", default=False,
                       help="use extended test file")
+
+parser.add_option("-q", "--quiet", action="store_true", dest="quiet",
+    default=False, help="do not show any success text")
 
 (options, args) = parser.parse_args()
 
@@ -84,7 +87,7 @@ def extractArray(line):
 # Algorithm #1 uses a basic iterative approach
 # Takes about 250 Seconds for 20,000 lines
 def algorithm1(array):
-  print "Running algorithm #1..."  
+  #print "Running algorithm #1..."  
   maxSum = 0
   currSum = 0
   t0 = time()
@@ -106,7 +109,7 @@ def algorithm1(array):
 # Algorithm #2 uses an improved iterative approach.
 # Takes about 9 Seconds for 20,000 lines
 def algorithm2(array):
-  print "Running algorithm #2..."
+  #print "Running algorithm #2..."
   maxSum = 0
   currSum = 0
   t0 = time()
@@ -126,7 +129,7 @@ def algorithm2(array):
   return (maxSum, runTime)
 
 def algorithm3(array):
-  print "Running algorithm #3..."
+  #print "Running algorithm #3..."
   maxSum = 0
   t0 = time()  
   
@@ -138,9 +141,21 @@ def algorithm3(array):
   runTime = t1 - t0
   return (maxSum, runTime)
 
-def algorithm4():
-  print "Running algorithm #4..."
-  pass
+def algorithm4(array):
+  #print "Running algorithm #4..."
+  maxSum = 0
+  currSum = 0
+  t0 = time()
+
+  # BEGIN ALGORITHM #4 HERE
+  for val in array:
+    currSum = max2(0, currSum + val)
+    maxSum = max2(maxSum, currSum)
+  # END ALGORITHM #4 HERE
+
+  t1 = time()
+  runTime = t1 - t0
+  return (maxSum, runTime)
 
 def main():
   global globalArray
@@ -173,14 +188,17 @@ def main():
     else:
       print "No algorithm selected. Quitting..."
       exit()
-
-    if maxSum == real_sum:
-      print "SUCCESS. Time = " + str(runTime)
-    else:
-      print "FAIL! We got " + str(maxSum) + " but the right answer was "+str(real_sum)
+    
+    if not options.quiet:
+      if maxSum == real_sum:
+        print "SUCCESS. Time = " + str(runTime)
+      else:
+        print "FAIL! We got " + str(maxSum) + " but the right answer was "+str(real_sum)
     # Keep track of total run time
     totalTime += runTime
     
+  print "\nResults for " + algorithmDictionary[options.algorithm] 
+  print "=================================="
   print "Total Time = " + str(totalTime)
   print "Average Time per Iteration = " + str(totalTime / totalTests)
 
