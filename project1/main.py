@@ -85,10 +85,10 @@ def extractArray(line):
 # Takes about 250 Seconds for 20,000 lines
 def algorithm1(array):
   print "Running algorithm #1..."  
-  t0 = time()
   maxSum = 0
   currSum = 0
-
+  t0 = time()
+ 
  # BEGIN ALGORITHM #1 HERE
   for i in xrange(0, len(array)):
     for k in xrange(0, len(array)):
