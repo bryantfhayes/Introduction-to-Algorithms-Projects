@@ -9,7 +9,6 @@ from optparse import OptionParser
 from time import time
 
 ################## SETUP ######################################
-
 # GLOBAL VARIABLES
 TEST_FILE = "mstest.txt"
 globalArray = []
@@ -30,6 +29,49 @@ if options.long:
   TEST_FILE = "mstest_l.txt"
 ###############################################################
 
+# UTILITY FUNCTION
+def max2(a, b):
+  if a > b:
+    return a
+  else:
+    return b
+
+# UTILITY FUNCTION
+def max3(a, b, c):
+  return max2(max2(a, b), c)
+
+# Used for algorithm #3, returns larges sum found between two arrays
+def maxMiddleSum(array, low, mid, high):
+
+  # Calculate max subarray on left side of current array
+  sum = 0
+  leftSum = 0
+  for i in range(mid, low-1, -1):
+    sum += array[i]
+    if sum > leftSum:
+      leftSum = sum
+
+  # Calculate max subarray on right side of the current array
+  sum = 0
+  rightSum = 0
+  for i in range(mid+1, high+1, 1):
+    sum += array[i]
+    if sum > rightSum:
+      rightSum = sum
+
+  return (leftSum + rightSum)
+
+# Used for algorithm #3, returns maxSubArray sum
+def maxSubArray(array, low, high):
+  # BASE CASE
+  if low == high:
+    return array[low]
+  mid = (low + high) / 2
+
+  # Return the maximum of left sum, right sum, and combined(middle) sum
+  return max3(maxSubArray(array, low, mid), maxSubArray(array, mid+1, high),
+      (maxMiddleSum(array, low, mid, high)))
+
 # Uses regex to take the array from the file as well as the sum listed at the
 # end of each line. The string array is then mapped to an actual array in
 # memory and returned.
@@ -41,81 +83,60 @@ def extractArray(line):
 
 # Algorithm #1 uses a basic iterative approach
 # Takes about 250 Seconds for 20,000 lines
-def algorithm1():
-  print "Running algorithm #1..."
+def algorithm1(array):
+  print "Running algorithm #1..."  
+  t0 = time()
+  maxSum = 0
+  currSum = 0
+
+ # BEGIN ALGORITHM #1 HERE
+  for i in xrange(0, len(array)):
+    for k in xrange(0, len(array)):
+      for m in xrange(i, k+1):
+        currSum += array[m]
+      if currSum > maxSum:
+        maxSum = currSum
+      currSum = 0
+ # END ALGORITHM #1 HERE
   
-  totalTime = 0
-  totalTests = len(globalArray)
-
-  # First for-loop is for iterating through all test arrays, not part of
-  # algorithm complexity.
-  for j in xrange(len(globalArray)):
-    maxSum = 0
-    currSum = 0
-    array = globalArray[j][0]
-    real_sum = int(globalArray[j][1])
-
-    # BEGIN ALGORITHM #1 HERE
-    t0 = time()
-    for i in xrange(0, len(array)):
-      for k in xrange(0, len(array)):
-        for m in xrange(i, k+1):
-          currSum += array[m]
-        if currSum > maxSum:
-          maxSum = currSum
-        currSum = 0
-    t1 = time()
-    totalTime += t1 - t0
-    # END ALGORITHM #1 HERE
-
-    if maxSum == real_sum:
-      print "SUCCESS! Time = " + str(t1-t0)
-    else:
-      print "FAIL! We got " + str(maxSum) + " but the right answer was " + str(real_sum)
-
-  print "Total Time = " + str(totalTime)
-  print "Average Time per Iteration = " + str(totalTime / totalTests)
-
+  t1 = time()
+  runTime = t1 - t0
+  return (maxSum, runTime)
+  
 # Algorithm #2 uses an improved iterative approach.
 # Takes about 9 Seconds for 20,000 lines
-def algorithm2():
+def algorithm2(array):
   print "Running algorithm #2..."
-  
-  totalTime = 0
-  totalTests = len(globalArray) 
-
-  # First for-loop is for iterating through all test arrays, not part of
-  # algorithm complexity.
-  for j in xrange(len(globalArray)):
-    maxSum = 0
-    currSum = 0
-    array = globalArray[j][0]
-    real_sum = int(globalArray[j][1])
-
-    # BEGIN ALGORITHM #2 HERE
-    t0 = time()
-    for i in xrange(0, len(array)):
-      currSum = 0
-      for k in xrange(i, len(array)):
-        currSum += array[k]
-        if currSum > maxSum:
-          maxSum = currSum
-    t1 = time()
-    totalTime += t1 - t0
-    # END ALGORITHM #2 HERE
+  maxSum = 0
+  currSum = 0
+  t0 = time()
     
-    if maxSum == real_sum:
-      print "SUCCESS. Time = " + str(t1-t0)
-    else:
-      print "FAIL! We got " + str(maxSum) + " but the right answer was " + str(real_sum)
+  # BEGIN ALGORITHM #2 HERE
+  for i in xrange(0, len(array)):
+    currSum = 0
+    for k in xrange(i, len(array)):
+      currSum += array[k]
+      if currSum > maxSum:
+        maxSum = currSum
+  # END ALGORITHM #2 HERE
 
-  print "Total Time = " + str(totalTime)
-  print "Average Time per Iteration = " + str(totalTime / totalTests)
+  t1 = time()
+  runTime = t1 - t0
+  
+  return (maxSum, runTime)
 
-
-def algorithm3():
+def algorithm3(array):
   print "Running algorithm #3..."
-  pass
+  maxSum = 0
+  t0 = time()  
+  
+  # BEGIN ALGORITHM #3 HERE
+  maxSum = maxSubArray(array, 0, len(array)-1)
+  # END ALGORITHM #3 HERE
+  
+  t1 = time()
+  runTime = t1 - t0
+  return (maxSum, runTime)
 
 def algorithm4():
   print "Running algorithm #4..."
@@ -132,16 +153,36 @@ def main():
     # At this point globalArray contains all the arrays from the file in [x][0]
     # and the corresponding max_sum in [x][1]
   
-  if options.algorithm == '1':
-    algorithm1()
-  elif options.algorithm == '2':
-    algorithm2()
-  elif options.algorithm == '3':
-    algorithm3()
-  elif options.algorithm == '4':
-    algorithm4()
-  else:
-    print "No algorithm selected. Quitting..."
+
+  totalTime = 0
+  totalTests = len(globalArray)
+
+  for j in xrange(len(globalArray)):
+    maxSum = 0
+    array = globalArray[j][0]
+    real_sum = int(globalArray[j][1])
+
+    if options.algorithm == '1':
+      (maxSum, runTime) = algorithm1(array)
+    elif options.algorithm == '2':
+      (maxSum, runTime) = algorithm2(array)
+    elif options.algorithm == '3':
+      (maxSum, runTime) = algorithm3(array)
+    elif options.algorithm == '4':
+      (maxSum, runTime) = algorithm4(array)
+    else:
+      print "No algorithm selected. Quitting..."
+      exit()
+
+    if maxSum == real_sum:
+      print "SUCCESS. Time = " + str(runTime)
+    else:
+      print "FAIL! We got " + str(maxSum) + " but the right answer was "+str(real_sum)
+    # Keep track of total run time
+    totalTime += runTime
+    
+  print "Total Time = " + str(totalTime)
+  print "Average Time per Iteration = " + str(totalTime / totalTests)
 
 if __name__ == "__main__":
   main()
