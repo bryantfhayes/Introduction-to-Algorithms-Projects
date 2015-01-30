@@ -28,6 +28,8 @@ parser.add_option("-f", "--file", action="store_true", dest="file", default=Fals
 
 parser.add_option("-t", "--test", dest="test", metavar="<#>", help="run test on 10 iterations of a randomly generated array of size '#'")
 
+parser.add_option("-d", "--demo", action="store_true", dest="demo", default=False, help="run selected algorithm on arrays of size 100, 200,...1000, 2000,..., 10000")
+
 (options, args) = parser.parse_args()
 
 if options.long:
@@ -168,39 +170,75 @@ def generateArrays(n):
       tempArr2.append(random.randint(RAND_MIN, RAND_MAX))
     tempArr1.append([tempArr2, 0])
   t1 = time()
-  print "\nGenerated array of size %d in %lf seconds" % (n, t1-t0)
+  #print "\nGenerated array of size %d in %lf seconds" % (n, t1-t0)
   return tempArr1
 
 def verifyArgs():
-  if not options.file:
-    try:
-      options.test = int(options.test)
-    except:
-      print "-t arguement must be an integer"
-      exit()
 
-  if (not options.file) and (options.test == None):
-    print "Must include either -t or -f option"
+  if (not options.demo) and (not options.file) and (options.test == None):
+    print "Must include either -t, -d, or -f option"
     exit()
   elif (options.file) and (options.test != None):
     print "Invalid arguement combination"
-    exit()
+    exit()            
   elif (options.test != None) and options.long:
     print "Invalid argument combination"
     exit()
   elif options.long and (options.test != None):
     print "Invalid arguement combination"
     exit()
-  elif (not options.file) and options.test < 1:
+  elif (not options.demo) and (not options.file) and options.test < 1:
     print "-t arguement must be greater than 0"
     exit()
+ 
+  if (not options.demo) and (not options.file):
+    try:
+      options.test = int(options.test)
+    except:
+      print "-t arguement must be an integer"
+      exit()
+
+def mainTest():
+  global globalArray
+
+  for k in [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]:
+  
+    globalArray = generateArrays(k)
+
+    totalTime = 0
+    totalTests = len(globalArray)
+
+    for j in xrange(len(globalArray)):
+      maxSum = 0
+      array = globalArray[j][0]
+      real_sum = int(globalArray[j][1])
+
+      if options.algorithm == '1':
+        (maxSum, runTime) = algorithm1(array)
+      elif options.algorithm == '2':
+        (maxSum, runTime) = algorithm2(array)
+      elif options.algorithm == '3':
+        (maxSum, runTime) = algorithm3(array)
+      elif options.algorithm == '4':
+        (maxSum, runTime) = algorithm4(array)
+      else:
+        print "No algorithm selected. Quitting..."
+        exit()
     
+      # Keep track of total run time
+      totalTime += runTime
+    print totalTime
+
 def main():
   global globalArray
-  
+
   # Make sure all flag/arguement combinations are valid
-  verifyArgs()
-  
+  verifyArgs() 
+
+  if options.demo:
+    mainTest()
+    exit()
+
   if options.file:
     # Read the test cases from the test file and save to global 2D array
     with open(TEST_FILE) as f:
@@ -214,6 +252,7 @@ def main():
 
   totalTime = 0
   totalTests = len(globalArray)
+  count = 0.0
 
   for j in xrange(len(globalArray)):
     maxSum = 0
@@ -239,11 +278,17 @@ def main():
         print "FAIL! We got " + str(maxSum) + " but the right answer was "+str(real_sum)
     # Keep track of total run time
     totalTime += runTime
-    
-  print "\nResults for " + algorithmDictionary[options.algorithm] 
-  print "=================================="
-  print "Total Time = " + str(totalTime) + "\n"
-  #print "Average Time per Iteration = " + str(totalTime / totalTests)
+    count += 1
 
+    if options.test != None:
+      percent = str(count/10.0*100) + "%"
+      sys.stdout.write("\r%s" % percent)
+      sys.stdout.flush()
+  #print "\nResults for " + algorithmDictionary[options.algorithm] 
+  #print "=================================="
+  #print "Total Time = " + str(totalTime)
+  #print "Average Time per line = " + str(totalTime / 10) + "\n" 
+  sys.stdout.write("\r%s\n" % str(totalTime/10.0))
+  sys.stdout.flush()
 if __name__ == "__main__":
   main()
