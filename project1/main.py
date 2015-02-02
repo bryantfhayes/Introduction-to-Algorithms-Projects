@@ -10,17 +10,16 @@ from time import time
 
 ################## SETUP ######################################
 # GLOBAL VARIABLES
-TEST_FILE = "mstest.txt"
+TEST_FILE = "MSS_TestSet.txt"
 RAND_MIN = -1000
 RAND_MAX = 1000
 globalArray = []
+maxSubArrayArray = []
 algorithmDictionary = {'1' : "Algorithm #1" , '2' : "Algorithm #2" , '3' : "Algorithm #3" , '4' : "Algorithm #4"}
 # Setup the option parser for choosing the algorithm
 parser = OptionParser()
 
 parser.add_option("-a", "--algorithm", dest="algorithm", help="choose which algorithm to execute", metavar="<1 2 3 4>")
-
-parser.add_option("-l", "--long", action="store_true", dest="long", default=False, help="use extended test file")
 
 parser.add_option("-q", "--quiet", action="store_true", dest="quiet", default=False, help="do not show any success text")
 
@@ -32,8 +31,6 @@ parser.add_option("-d", "--demo", action="store_true", dest="demo", default=Fals
 
 (options, args) = parser.parse_args()
 
-if options.long:
-  TEST_FILE = "mstest_l.txt"
 ###############################################################
 
 # UTILITY FUNCTION
@@ -85,13 +82,16 @@ def maxSubArray(array, low, high):
 def extractArray(line):
   re_expression = "\[([+-]?[0-9]*,? ?)*\]"
   m = re.search(re_expression, line)
-  v = re.findall(', [0-9]*', line)
-  return map(int, m.group(0)[1:-1].split(',')), v[-1][2:]
+  return map(int, m.group(0)[1:-1].split(','))
 
 # Algorithm #1 uses a basic iterative approach
 # Takes about 250 Seconds for 20,000 lines
 def algorithm1(array):
+  global maxSubArrayArray
+  
   #print "Running algorithm #1..."  
+  actualMaxArray = []
+  currentMaxArray = []
   maxSum = 0
   currSum = 0
   t0 = time()
@@ -101,19 +101,27 @@ def algorithm1(array):
     for k in xrange(0, len(array)):
       for m in xrange(i, k+1):
         currSum += array[m]
+        currentMaxArray.append(array[m])
       if currSum > maxSum:
         maxSum = currSum
+        actualMaxArray = currentMaxArray
+        currentMaxArray = []
+      else:
+        currentMaxArray = []
       currSum = 0
- # END ALGORITHM #1 HERE
+  # END ALGORITHM #1 HERE
   
   t1 = time()
   runTime = t1 - t0
-  return (maxSum, runTime)
+  
+  return (maxSum, actualMaxArray, runTime)
   
 # Algorithm #2 uses an improved iterative approach.
 # Takes about 9 Seconds for 20,000 lines
 def algorithm2(array):
   #print "Running algorithm #2..."
+  maxSumIndexes = [0,0]
+  maxSumArrayArray = []
   maxSum = 0
   currSum = 0
   t0 = time()
@@ -125,16 +133,23 @@ def algorithm2(array):
       currSum += array[k]
       if currSum > maxSum:
         maxSum = currSum
+        maxSumIndexes = [i,k]
   # END ALGORITHM #2 HERE
+  
 
   t1 = time()
   runTime = t1 - t0
+ 
+  # Record the values in th max sub array
+  for x in xrange(maxSumIndexes[0], maxSumIndexes[1]+1):
+    maxSumArrayArray.append(array[x])
   
-  return (maxSum, runTime)
+  return (maxSum, maxSumArrayArray, runTime)
 
 def algorithm3(array):
   #print "Running algorithm #3..."
   maxSum = 0
+  maxSumArrayArray = []
   t0 = time()  
   
   # BEGIN ALGORITHM #3 HERE
@@ -143,23 +158,46 @@ def algorithm3(array):
   
   t1 = time()
   runTime = t1 - t0
-  return (maxSum, runTime)
+  if options.file:
+    maxSumArrayArray = algorithm4(array)[1]
+  else:
+    maxSumArrayArray = []
+
+  return (maxSum, maxSumArrayArray, runTime)
 
 def algorithm4(array):
   #print "Running algorithm #4..."
   maxSum = 0
   currSum = 0
+  firstIndex = 0
+  maxFirstIndex = 0
+  maxLastIndex = 0
+  maxSubArray = []
   t0 = time()
 
   # BEGIN ALGORITHM #4 HERE
-  for val in array:
-    currSum = max2(0, currSum + val)
-    maxSum = max2(maxSum, currSum)
+  for i in xrange(0, len(array)):
+    
+    if currSum + array[i] < 0:
+      firstIndex = i+1
+      currSum = 0
+    else:
+      currSum = currSum + array[i]
+
+    if maxSum < currSum:
+      maxFirstIndex = firstIndex
+      maxLastIndex = i
+      maxSum = currSum
   # END ALGORITHM #4 HERE
 
   t1 = time()
   runTime = t1 - t0
-  return (maxSum, runTime)
+  
+  # Figure out sub array based on indexes
+  for i in xrange(maxFirstIndex, maxLastIndex + 1):
+    maxSubArray.append(array[i])
+  
+  return (maxSum, maxSubArray, runTime)
 
 def generateArrays(n):
   t0 = time()
@@ -168,7 +206,7 @@ def generateArrays(n):
     tempArr2 = []
     for j in xrange(n):
       tempArr2.append(random.randint(RAND_MIN, RAND_MAX))
-    tempArr1.append([tempArr2, 0])
+    tempArr1.append(tempArr2)
   t1 = time()
   #print "\nGenerated array of size %d in %lf seconds" % (n, t1-t0)
   return tempArr1
@@ -181,12 +219,6 @@ def verifyArgs():
   elif (options.file) and (options.test != None):
     print "Invalid arguement combination"
     exit()            
-  elif (options.test != None) and options.long:
-    print "Invalid argument combination"
-    exit()
-  elif options.long and (options.test != None):
-    print "Invalid arguement combination"
-    exit()
   elif (not options.demo) and (not options.file) and options.test < 1:
     print "-t arguement must be greater than 0"
     exit()
@@ -197,6 +229,10 @@ def verifyArgs():
     except:
       print "-t arguement must be an integer"
       exit()
+
+  if options.algorithm != '1' and options.algorithm != '2' and options.algorithm != '3' and options.algorithm != '4':
+    print "Not a valid algorithm"
+    exit(1)
 
 def mainTest():
   global globalArray
@@ -210,17 +246,17 @@ def mainTest():
 
     for j in xrange(len(globalArray)):
       maxSum = 0
-      array = globalArray[j][0]
-      real_sum = int(globalArray[j][1])
+      maxSubArray = []
+      array = globalArray[j]
 
       if options.algorithm == '1':
-        (maxSum, runTime) = algorithm1(array)
+        (maxSum, maxSubArray, runTime) = algorithm1(array)
       elif options.algorithm == '2':
-        (maxSum, runTime) = algorithm2(array)
+        (maxSum, maxSubArray, runTime) = algorithm2(array)
       elif options.algorithm == '3':
-        (maxSum, runTime) = algorithm3(array)
+        (maxSum, maxSubArray, runTime) = algorithm3(array)
       elif options.algorithm == '4':
-        (maxSum, runTime) = algorithm4(array)
+        (maxSum, maxSubArray, runTime) = algorithm4(array)
       else:
         print "No algorithm selected. Quitting..."
         exit()
@@ -240,11 +276,14 @@ def main():
     exit()
 
   if options.file:
+    print "----------------------------------------------------------------------"
+    print "                        %s                                            " % algorithmDictionary[options.algorithm]
+    print "----------------------------------------------------------------------"
     # Read the test cases from the test file and save to global 2D array
     with open(TEST_FILE) as f:
       for line in f:
-        (array, val) = extractArray(line)
-        globalArray.append([array, val])
+        array = extractArray(line)
+        globalArray.append(array)
       # At this point globalArray contains all the arrays from the file in [x][0]
       # and the corresponding max_sum in [x][1]
   else:
@@ -256,26 +295,26 @@ def main():
 
   for j in xrange(len(globalArray)):
     maxSum = 0
-    array = globalArray[j][0]
-    real_sum = int(globalArray[j][1])
-
+    array = globalArray[j]
+    maxSubArray = []
+    
     if options.algorithm == '1':
-      (maxSum, runTime) = algorithm1(array)
+      (maxSum, maxSubArray, runTime) = algorithm1(array)
     elif options.algorithm == '2':
-      (maxSum, runTime) = algorithm2(array)
+      (maxSum, maxSubArray, runTime) = algorithm2(array)
     elif options.algorithm == '3':
-      (maxSum, runTime) = algorithm3(array)
+      (maxSum, maxSubArray, runTime) = algorithm3(array)
     elif options.algorithm == '4':
-      (maxSum, runTime) = algorithm4(array)
+      (maxSum, maxSubArray, runTime) = algorithm4(array)
     else:
       print "No algorithm selected. Quitting..."
       exit()
     
     if not options.quiet and options.file:
-      if maxSum == real_sum:
-        print "SUCCESS. Time = " + str(runTime)
-      else:
-        print "FAIL! We got " + str(maxSum) + " but the right answer was "+str(real_sum)
+      print "\nOriginal Array: " + str(array)
+      print "Maximum Sum: " + str(maxSum)
+      print "Max SubArray: " + str(maxSubArray)
+      print "Runtime: " + str(runTime)
     # Keep track of total run time
     totalTime += runTime
     count += 1
@@ -288,7 +327,8 @@ def main():
   #print "=================================="
   #print "Total Time = " + str(totalTime)
   #print "Average Time per line = " + str(totalTime / 10) + "\n" 
-  sys.stdout.write("\r%s\n" % str(totalTime/10.0))
-  sys.stdout.flush()
+  if options.test != None:
+    sys.stdout.write("\r%s\n" % str(totalTime/10.0))
+    sys.stdout.flush()
 if __name__ == "__main__":
   main()
