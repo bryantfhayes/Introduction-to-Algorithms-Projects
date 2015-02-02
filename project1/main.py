@@ -10,7 +10,7 @@ from time import time
 
 ################## SETUP ######################################
 # GLOBAL VARIABLES
-TEST_FILE = "MSS_TestSet.txt"
+TEST_FILE = "MSS_Test.txt"
 RAND_MIN = -1000
 RAND_MAX = 1000
 globalArray = []

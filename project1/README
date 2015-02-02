@@ -1,14 +1,25 @@
+INDIVIDUAL SPEED TEST
 To run a speed test using a certain algorithm on a generated array of size X run
 the following:
 
 "python main.py -a <ALGORITHM NUMBER> -t <GENERATED_ARRAY_SIZE>"
 
     ex) Get the average time it takes to run algorithm 2 on an array of size 500
+                    
                     "python main.py -a 2 -t 500"
 
 
 
-
+CORRECTNESS TEST
 To run a test on MSS_Problems.txt using algorithm #4, run the following:
 
                      "python main.py -a 4 -f"
+
+
+MASS SPEED TEST
+To run the demo, which takes a supplied algorithm and runs it on generated
+arrays of size 100, 200, ... 1000, 2000, ... 10000, ten times each and
+calculates an average time to find the max subarray of each, run the following
+(example uses algorithm 4):
+
+                      "python main.py -d -a 4"
