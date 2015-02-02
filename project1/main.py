@@ -1,5 +1,5 @@
 # Author: Group 8 (Bryant, Nathan, Keenan)
-# Date: 01/27/2015
+# Date: 01/30/2015
 # Description: This program contains four algorithms which use
 #              various approaches to find the max sub array from
 #              a larger array.

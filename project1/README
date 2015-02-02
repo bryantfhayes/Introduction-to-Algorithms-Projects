@@ -1,0 +1,14 @@
+To run a speed test using a certain algorithm on a generated array of size X run
+the following:
+
+"python main.py -a <ALGORITHM NUMBER> -t <GENERATED_ARRAY_SIZE>"
+
+    ex) Get the average time it takes to run algorithm 2 on an array of size 500
+                    "python main.py -a 2 -t 500"
+
+
+
+
+To run a test on MSS_Problems.txt using algorithm #4, run the following:
+
+                     "python main.py -a 4 -f"
