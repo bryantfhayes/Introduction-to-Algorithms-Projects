@@ -1,0 +1,24 @@
+The examples below assume you have an input file in the form:
+
+[1, 2, 3, ...]
+23
+
+Where the first line of the file is an array with brackets and each number is
+seperated by a comma (extra white space is okay). The second number is jsut any
+whole integer value.
+
+***
+
+To run the naive, brute force method use:
+  python main.py -a 1 -f <input_file>
+
+To run the greedy algorithm use:
+  python main.py -a 2 -f <input_file>
+
+To run the dynamic programming algorithm use:
+  python main.py -a 3 -f <input_file>
+
+***
+
+The solution will be printed to the screen as well as saved to a file called
+<input_file>change.txt

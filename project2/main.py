@@ -4,7 +4,7 @@ from optparse import OptionParser
 # Setup the option parser for choosing the algorithm
 parser = OptionParser()
 
-parser.add_option("-a", "--algorithm", dest="algorithm", help="Choose which algorithm to execute", metavar="1.BruteForce, 2.Greedy, 3.Dynamic")
+parser.add_option("-a", "--algorithm", dest="algorithm", help="Choose which algorithm to execute")
 
 parser.add_option("-f", "--file", dest="filename", help="Enter input file name")
 
@@ -61,7 +61,7 @@ def changeSlow(V, k):
       localSolution = sumBothSolutions(localSolution1, localSolution2)
   return localSolution
 
-# CHANGESLOW_UTILITY_METHOD
+# UTILITY_METHOD
 # Iterate through two arrays and find the sum of all the values.
 def calculateCoinCount(a, b):
   coinCount = 0
@@ -71,7 +71,7 @@ def calculateCoinCount(a, b):
     coinCount += x
   return coinCount
 
-# CHANGESLOW_UTILITY_METHOD
+# UTILITY_METHOD
 # Input two solutions of equal length and merge them into a single list. 
 def sumBothSolutions(a, b):
   newSolution = [0] * len(a)
@@ -87,7 +87,8 @@ def loadInputFile(filename):
   V = lines[0].strip('\n')[1:-1]
   V = map(int, V.split(','))
   A = int(lines[1].strip('\n'))
-
+                                         
+# Save output to a text file.
 def saveOutput(filename, solution, m):
   f = open(filename[:-4] + "change.txt",'w')
   f.write(str(solution))
@@ -95,8 +96,34 @@ def saveOutput(filename, solution, m):
   f.write(str(m))
   f.close()
 
+# Call this function to launch the greedy algorithm to find a solution
+# on V[] and A given as global variables.
+def executeChangeGreedy():
+  global V, A
+  # Make sure V[] and A are ready at this point
+  solution = []
+  solution = changeGreedy(V, A)
+  print "The solution is: " + str(solution)
+  print "Total number of coins: " + str(solutionCoinSum(solution))
+  return (solution, solutionCoinSum(solution))
+
+# The greed algorithm. I believe it has an asymptotic runtime of O(V*k)
+def changeGreedy(V, k):
+  localSolution = [0] * len(V)
+  for i in xrange(len(V)-1, -1, -1):
+    if V[i] <= k:
+      localSolution[i] = 1
+      k -= V[i]
+      break
+  # Check for Base Case
+  if k == 0:
+    return localSolution
+  # Otherwise, recurse further
+  else:
+    remainingSolution = changeGreedy(V, k)
+    return sumBothSolutions(localSolution, remainingSolution)
+
 def main():
-  
   # Variables
   solution = []
   m = 0
@@ -108,7 +135,7 @@ def main():
   if options.algorithm == '1':
     (solution, m) = executeChangeSlow()
   elif options.algorithm == '2':
-    pass
+    (solution, m) = executeChangeGreedy()
   elif options.algorithm == '3':
     pass
   else:
