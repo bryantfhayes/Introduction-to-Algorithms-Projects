@@ -9,6 +9,9 @@ whole integer value.
 
 ***
 
+To run all of the algorithm is series use:
+  python main.py -a a -f <input_file>
+
 To run the naive, brute force method use:
   python main.py -a 1 -f <input_file>
 

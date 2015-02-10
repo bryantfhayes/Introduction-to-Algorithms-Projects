@@ -1,5 +1,9 @@
-import sys
+import sys, os
 from optparse import OptionParser
+from time import time
+
+# Set recursion depth to one million
+sys.setrecursionlimit(40000)
 
 # Setup the option parser for choosing the algorithm
 parser = OptionParser()
@@ -7,6 +11,9 @@ parser = OptionParser()
 parser.add_option("-a", "--algorithm", dest="algorithm", help="Choose which algorithm to execute")
 
 parser.add_option("-f", "--file", dest="filename", help="Enter input file name")
+
+parser.add_option("-t", "--time", action="store_true", dest="time",
+    default=False, help="Get time it takes to run each algorithm run")
 
 (options, args) = parser.parse_args()
 
@@ -16,26 +23,38 @@ if not options.filename:   # if filename is not given
 # --------------------------------------------------
 
 # Global Variables
-V = [1, 10, 25, 50]
-A = 11
-C = [] # Optimal Array for changedp
-Cv = []
+V  = []     # Current V value
+A  = 0     # Current A value
+Vq = []    # Queue for V values
+Aq = []    # Queue for A values
+Iq = 0     # Global index for V/A Queue
+C  = []    # Optimal Array for changedp
+Cv = []    # Value of last subtracted V[i] for idx i
+numberOfSets = 0 # The number of sets to run through
 
+# Execute the change slow algorithm which runs in exponential time
 def executeChangeSlow():
   global V, A
   # Make sure V[] and A are ready at this point
   solution = []
+  t0 = time()
   solution = changeSlow(V, A)
+  t1 = time()
+  if options.time:
+    print "TIME = %lf" % (t1-t0)
+  
   print "The solution is: " + str(solution)
   print "Total number of coins: " + str(solutionCoinSum(solution))
   return (solution, solutionCoinSum(solution))
 
+# Takes in a list and sums each i*solution[i]
 def solutionCoinSum(solution):
   sum = 0
   for val in solution:
     sum += val
   return sum
 
+# The actual changeSlow algorithm is here
 def changeSlow(V, k):
   # V = The list containing coin values
   # A = The value we are trying to make using various coins
@@ -81,21 +100,35 @@ def sumBothSolutions(a, b):
     newSolution[i] = a[i] + b[i]
   return newSolution
 
-# Sets the global variables V and A from the input file.
+# Sets the global variables Vq and Aq from the input file
+# This creates the queue of sets to analyze
 def loadInputFile(filename):
-  global V,A
+  global Vq, Aq, numberOfSets
   with open(filename) as f:
     lines = f.readlines()
-  V = lines[0].strip('\n')[1:-1]
-  V = map(int, V.split(','))
-  A = int(lines[1].strip('\n'))
-                                         
+  for i in xrange(0, len(lines), 2):
+    numberOfSets += 1
+    tempV = lines[i].strip('\n')[1:-1]
+    tempV = map(int, tempV.split(','))
+    tempA = int(lines[i+1].strip('\n'))
+    Vq.append(tempV)
+    Aq.append(tempA)
+
+# loadInputFile() creates a queue of sets, this acts as a FIFO list
+# where this function returns the latest set.
+def getNextSetFromQueue():
+  global Vq, Aq, Iq
+  curr = (Vq[Iq], Aq[Iq])
+  Iq += 1
+  return curr
+
 # Save output to a text file.
 def saveOutput(filename, solution, m):
-  f = open(filename[:-4] + "change.txt",'w')
+  f = open(filename[:-4] + "change.txt",'a')
   f.write(str(solution))
   f.write('\n')
   f.write(str(m))
+  f.write('\n')
   f.close()
 
 # Call this function to launch the greedy algorithm to find a solution
@@ -104,7 +137,12 @@ def executeChangeGreedy():
   global V, A
   # Make sure V[] and A are ready at this point
   solution = []
+  t0 = time()
   solution = changeGreedy(V, A)
+  t1 = time()
+  if options.time:
+    print "TIME = %lf" % (t1-t0)
+  
   print "The solution is: " + str(solution)
   print "Total number of coins: " + str(solutionCoinSum(solution))
   return (solution, solutionCoinSum(solution))
@@ -125,6 +163,7 @@ def changeGreedy(V, k):
     remainingSolution = changeGreedy(V, k)
     return sumBothSolutions(localSolution, remainingSolution)
 
+# The actualy changedp algorithm is here
 def changedp(V, k):
   global Cv
   coins = []
@@ -146,6 +185,7 @@ def changedp(V, k):
 
   return 1 + minCoin
 
+# Kicks off the changedp algoithm (Dynamic Programming Method)
 def executeChangedp():
   global V, A, C, Cv
   # Make sure V[] and A are ready at this point
@@ -154,6 +194,7 @@ def executeChangedp():
   Cv = [0] * (A+1)
   # Calculate every value in C[] from the bottom-up.
   # This allows you to use previous values to find future values.
+  t0 = time()
   for i in xrange(0, A+1):
     C[i] = changedp(V, i)
     #print "%d = %d" % (i, C[i])
@@ -163,12 +204,19 @@ def executeChangedp():
       if Cv[j] == V[w]:
         solution[w] += 1
         j -= V[w]
-    
+  t1 = time()
+
+  if options.time:
+    print "TIME = %lf" % (t1-t0)
+
   print "The solution is: " + str(solution)
   print "Total number of coins: " + str(C[A])
-  return (solution, solution)
+  return (solution, C[A])
 
+# MAIN
 def main():
+  global numberOfSets, V, A
+
   # Variables
   solution = []
   m = 0
@@ -176,19 +224,31 @@ def main():
   # Setup
   loadInputFile(options.filename)
   
-  # Algorithm Call
-  if options.algorithm == '1':
-    (solution, m) = executeChangeSlow()
-  elif options.algorithm == '2':
-    (solution, m) = executeChangeGreedy()
-  elif options.algorithm == '3':
-    executeChangedp()
-  else:
-    print "No algorithm selected. Quitting..."
-    exit(1)
+  if os.path.isfile(options.filename[:-4] + "change.txt"):
+    os.system("rm " + options.filename[:-4] + "change.txt")
 
-  # Output solution to file
-  saveOutput(options.filename, solution, m)
+  for i in xrange(0, numberOfSets):
+    #print getNextSetFromQueue()
+    (V, A) = getNextSetFromQueue()
+    # Algorithm Call
+    if options.algorithm == 'a':
+      (solution, m) = executeChangeSlow()
+      saveOutput(options.filename, solution, m)
+      (solution, m) = executeChangeGreedy()
+      saveOutput(options.filename, solution, m)
+      (solution, m) = executeChangedp()
+    elif options.algorithm == '1':
+      (solution, m) = executeChangeSlow()
+    elif options.algorithm == '2':
+      (solution, m) = executeChangeGreedy()
+    elif options.algorithm == '3':
+      (solution, m) = executeChangedp()
+    else:
+      print "No algorithm selected. Quitting..."
+      exit(1)
+
+    # Output solution to file
+    saveOutput(options.filename, solution, m)
 
 if __name__ == "__main__":
   main()
