@@ -18,6 +18,8 @@ if not options.filename:   # if filename is not given
 # Global Variables
 V = [1, 10, 25, 50]
 A = 11
+C = [] # Optimal Array for changedp
+Cv = []
 
 def executeChangeSlow():
   global V, A
@@ -123,6 +125,49 @@ def changeGreedy(V, k):
     remainingSolution = changeGreedy(V, k)
     return sumBothSolutions(localSolution, remainingSolution)
 
+def changedp(V, k):
+  global Cv
+  coins = []
+  tempCv = []
+  if k == 0:
+    return 0
+  for i in xrange(0, len(V)):
+    if V[i] <= k:
+      if C[k - V[i]] < sys.maxint:
+        coins.append(C[k - V[i]])
+        tempCv.append(V[i])
+      
+  minCoin = min(coins)
+  for i in xrange(0, len(coins)):
+    if coins[i] == minCoin:
+      minCoinIdx = i
+      break
+  Cv[k] += tempCv[minCoinIdx]
+
+  return 1 + minCoin
+
+def executeChangedp():
+  global V, A, C, Cv
+  # Make sure V[] and A are ready at this point
+  solution = [0] * len(V)
+  C = [sys.maxint] * (A+1)
+  Cv = [0] * (A+1)
+  # Calculate every value in C[] from the bottom-up.
+  # This allows you to use previous values to find future values.
+  for i in xrange(0, A+1):
+    C[i] = changedp(V, i)
+    #print "%d = %d" % (i, C[i])
+  j = A
+  while j > 0:
+    for w in xrange(0, len(V)):
+      if Cv[j] == V[w]:
+        solution[w] += 1
+        j -= V[w]
+    
+  print "The solution is: " + str(solution)
+  print "Total number of coins: " + str(C[A])
+  return (solution, solution)
+
 def main():
   # Variables
   solution = []
@@ -137,7 +182,7 @@ def main():
   elif options.algorithm == '2':
     (solution, m) = executeChangeGreedy()
   elif options.algorithm == '3':
-    pass
+    executeChangedp()
   else:
     print "No algorithm selected. Quitting..."
     exit(1)
