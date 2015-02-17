@@ -15,6 +15,9 @@ parser.add_option("-f", "--file", dest="filename", help="Enter input file name")
 parser.add_option("-t", "--time", action="store_true", dest="time",
     default=False, help="Get time it takes to run each algorithm run")
 
+parser.add_option("-d", "--demo", dest="demo",
+    default=False, help="Run test cases A = 2000, 2100, 2200, ... 3000. 1)[1,5,25,50]...2)[1,3,4,17,31]")
+
 (options, args) = parser.parse_args()
 
 # ERROR CHECK --------------------------------------
@@ -100,6 +103,19 @@ def sumBothSolutions(a, b):
     newSolution[i] = a[i] + b[i]
   return newSolution
 
+def testCase():
+  global Vq, Aq, numberOfSets
+  for i in xrange(0,11):
+    numberOfSets += 1
+    if options.demo == '1':
+      tempV = [1, 10, 25, 50]
+      tempA = 2000 + (100*i)
+    elif options.demo == '2':
+      tempV = [1, 3, 4, 17, 31]
+      tempA = 2000 + (100*i)
+    Vq.append(tempV)
+    Aq.append(tempA)
+    print tempV, tempA
 # Sets the global variables Vq and Aq from the input file
 # This creates the queue of sets to analyze
 def loadInputFile(filename):
@@ -221,8 +237,12 @@ def main():
   solution = []
   m = 0
 
-  # Setup
-  loadInputFile(options.filename)
+  # Create Vq and Aq queue
+  if options.demo == '1' or options.demo == '2':
+    testCase()
+    print "TEST"
+  else:
+    loadInputFile(options.filename)
   
   if os.path.isfile(options.filename[:-4] + "change.txt"):
     os.system("rm " + options.filename[:-4] + "change.txt")
