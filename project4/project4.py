@@ -13,7 +13,7 @@ def allTours(cities):
     return [[cities[0]] + list(tour) for tour in itertools.permutations(cities[1:])]
 
 random.seed('seed')
-cities8 = Cities(3)
+cities8 = Cities(4)
 
 print cities8
 print allTours(cities8)
