@@ -1,0 +1,19 @@
+This python script supports various command line flags to alter how the script is ran.
+
+-a / --algorithm <#> : Choose which algorithm to use.
+    0. Optimal Tour
+    1. Greedy (basic)
+
+-p / --plot : When finished computing tour, graph it using matplotlib
+
+-f / --file <filename>: Choose a file to read to get data for building cities
+
+-r / --random <#> : Choose to randomly build a given number of cities at random locations (0-1000, 0-1000)
+
+Examples:
+
+    Find the best tour possible using the greedy(basic) algorithm, where city location is based on a file:
+
+        "python project4.py -f tsp_example_1.txt -a 1"
+
+    *After running the file: 'tsp_example_1.txt.tour' contains the solution data
