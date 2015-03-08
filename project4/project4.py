@@ -54,7 +54,6 @@ def allTours(cities):
     allTours = []
     for tour in itertools.permutations(cities[1:]):
         allTours.append((cities[0],) + tour + (cities[0],))
-        print (cities[0],) + tour + (cities[0],)
     return allTours
 
 # Calculates the sum of all the distances along the 'tour'
