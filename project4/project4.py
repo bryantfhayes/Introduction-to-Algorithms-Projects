@@ -78,7 +78,8 @@ def calculateTour(algorithm, cities):
     t0 = time.time()
     tour = algorithm(cities)
     t1 = time.time()
-    print("{} city tour; Initial Tour distance = {:.1f}; time = {:.3f} secs for {}".format(len(tour)-1, tourDistanceSum(tour), t1-t0, algorithm.__name__))
+    print("%d city tour; Initial Tour distance = %.1f; time = %.3f secs for %s"
+        % (len(tour)-1, tourDistanceSum(tour), t1-t0, algorithm.__name__))
     return tour
 
 # Utility function for plotting points on matlab plot
@@ -120,7 +121,7 @@ def execute2opt(tour):
     while newDistance < currentDistance:
         if time.time() - startTime > 300.0:
             print("Timeout Reached!")
-            print("{} city tour; Optimized Distance = {:.1f}".format(
+            print("%d city tour; Optimized Distance = %.1f" % (
                   len(newTour)-1, tourDistanceSum(newTour)))
 
             if options.plot:
@@ -143,7 +144,7 @@ def execute2opt(tour):
 
         # If a keyboard interrupt is used, finish nicely and show what we have so far...
         except KeyboardInterrupt:
-            print("{} city tour; Optimized Distance = {:.1f}".format(
+            print("%d city tour; Optimized Distance = %.1f" % (
                   len(newTour)-1, tourDistanceSum(newTour)))
 
             if options.plot:
@@ -160,7 +161,7 @@ def execute2opt(tour):
             except SystemExit:
                 os._exit(0)
 
-    print("{} city tour; Optimized distance = {:.1f}".format(
+    print("%d city tour; Optimized distance = %.1f" % (
           len(newTour)-1, tourDistanceSum(newTour)))
     return newTour
 
