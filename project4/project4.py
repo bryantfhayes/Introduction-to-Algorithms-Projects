@@ -78,8 +78,7 @@ def calculateTour(algorithm, cities):
     t0 = time.time()
     tour = algorithm(cities)
     t1 = time.time()
-    print("{} city tour; Initial Tour distance = {:.1f}; time = {:.3f} secs for {}".format(
-          len(tour)-1, tourDistanceSum(tour), t1-t0, algorithm.__name__))
+    print("{} city tour; Initial Tour distance = {:.1f}; time = {:.3f} secs for {}".format(len(tour)-1, tourDistanceSum(tour), t1-t0, algorithm.__name__))
     return tour
 
 # Utility function for plotting points on matlab plot
