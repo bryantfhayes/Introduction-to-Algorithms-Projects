@@ -117,7 +117,26 @@ def execute2opt(tour):
     newDistance = tourDistanceSum(tour)
     currentDistance = sys.maxint
     newTour = tour
+    startTime = time.time()
     while newDistance < currentDistance:
+        if time.time() - startTime > 300.0:
+            print("Timeout Reached!")
+            print("{} city tour; Optimized Distance = {:.1f}".format(
+                  len(newTour)-1, tourDistanceSum(newTour)))
+
+            if options.plot:
+                # Plot the tour as blue lines between blue circles, and the starting city as a red square.
+                plotline(list(newTour))
+                plotline([newTour[0]], 'rs')
+                plt.show()
+
+            if options.file != None:
+                printToFile(options.file, tour)
+
+            try:
+                sys.exit(0)
+            except SystemExit:
+                os._exit(0)
         # print "newDistance vs Old" + str(newDistance) + ' vs ' + str(currentDistance)
         try:
             currentDistance = newDistance
@@ -181,7 +200,8 @@ def main():
 
     if options.random != None:
         if int(options.random) > 1:
-            random.seed(time.time())
+            # random.seed(time.time())
+            random.seed("seeed")
             cities = generateRandomCities(int(options.random))
     elif options.file != None:
         cities = generateCitiesFromFile(options.file)
