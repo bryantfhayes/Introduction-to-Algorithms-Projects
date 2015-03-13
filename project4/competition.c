@@ -87,7 +87,9 @@ double round(double d){
 }
 
 int distance(struct City* a, struct City* b){
-    return round(sqrt(((double)b->x - (double)a->x)*((double)b->x - (double)a->x) + ((double)b->y - (double)a->y)*((double)b->y - (double)a->y)));
+    double bax = (double)b->x - (double)a->x;
+    double bay = (double)b->y - (double)a->y;
+    return floor(sqrt((bax*bax + bay*bay))+0.5);
 }
 
 long sum_tour_distance(struct City** tour, int number_of_cities){
@@ -96,7 +98,6 @@ long sum_tour_distance(struct City** tour, int number_of_cities){
     for(i=0;i<number_of_cities;i++){
         sum += distance(tour[i], tour[i+1]);
     }
-    //sum += distance(tour[i], tour[0]);
 
     return sum;
 }
@@ -151,23 +152,19 @@ struct City** opt_swap(struct City** tour, int i, int j, int number_of_cities){
     for(k=0;k<i;k++){
         new_tour[tour_idx] = malloc(sizeof(struct City));
         new_tour[tour_idx] = tour[k];
-        //printf("tour #%d: %d\n", tour_idx, new_tour[tour_idx]->id);
         tour_idx++;
     }
     for(k=j;k>=i;k--){
         new_tour[tour_idx] = malloc(sizeof(struct City));
         new_tour[tour_idx] = tour[k];
-        //printf("-tour #%d: %d\n", tour_idx, new_tour[tour_idx]->id);
         tour_idx++;
     }
     for(k=j+1;k<number_of_cities+1;k++){
         new_tour[tour_idx] = malloc(sizeof(struct City));
         new_tour[tour_idx] = tour[k];
-    //    printf("--tour #%d: %d\n", tour_idx, new_tour[tour_idx]->id);
 
         tour_idx++;
     }
-    //printf("idx = %d\n", new_tour[0]->id);
     return new_tour;
 }
 
@@ -215,6 +212,16 @@ int main(int argc, char **argv){
         printf("Please supply a filename a second command line argument\n");
         exit(2);
     }
+
+    FILE * output;
+    //filename code
+    char *dot_tour = ".tour";
+    char buf[256];
+    snprintf(buf, sizeof buf, "%s%s", argv[1], dot_tour);
+
+    //opens argv[1].tour for writing, will overwrite old file
+    output = fopen(buf, "w");
+
     int number_of_cities = 0;
     char** words = read_file(&number_of_cities, argv[1]);
     struct City** cities = build_cities(words, number_of_cities);
@@ -222,11 +229,19 @@ int main(int argc, char **argv){
     struct City** improved_tour = opt(tour, number_of_cities);
 
     int m;
-    printf("%ld\n", sum_tour_distance(improved_tour, number_of_cities));
+    long endsum = sum_tour_distance(improved_tour, number_of_cities);
+
+    //print to screen code
+    printf("%ld\n", endsum);
+
+
+    //print to file code
+    fprintf(output, "%ld\n", endsum);
     for(m=0;m<number_of_cities;m++){
-        printf("%d\n", improved_tour[m]->id);
+        fprintf(output, "%d\n", improved_tour[m]->id);
     }
 
+    fclose(output);
     free(words);
     free(cities);
     return 0;
