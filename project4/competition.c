@@ -8,6 +8,7 @@ struct City{
     int id;
     int x;
     int y;
+    int* distance_table;
 };
 
 char** read_file(int* i, char *argv){
@@ -96,7 +97,8 @@ long sum_tour_distance(struct City** tour, int number_of_cities){
     int i = 0;
     long sum = 0;
     for(i=0;i<number_of_cities;i++){
-        sum += distance(tour[i], tour[i+1]);
+        //sum += distance(tour[i], tour[i+1]);
+        sum += tour[i]->distance_table[tour[i+1]->id];
     }
 
     return sum;
@@ -124,9 +126,8 @@ struct City** greedy_algorithm(struct City** cities, int number_of_cities){
     for(m=0;m<number_of_cities-1;m++){
         min_dist = 999999;
         for(n = 0; n < cities_left; n++){
-            temp_dist = distance(tour[m], remaining_cities[n]);
-            //printf("latest distance: %d when n=%d\n", temp_dist, n);
-
+            //temp_dist = distance(tour[m], remaining_cities[n]);
+            temp_dist = tour[m]->distance_table[remaining_cities[n]->id];
             if(temp_dist < min_dist){
                 min_dist = temp_dist;
                 current_city_index = n;
@@ -141,11 +142,6 @@ struct City** greedy_algorithm(struct City** cities, int number_of_cities){
     // Add the original City to the tour
     tour[tour_index+1] = malloc(sizeof(struct City));
     tour[tour_index+1] = cities[0];
-
-    for(i=0;i<number_of_cities;i++){
-        //free(remaining_cities[i]);
-    }
-    //free(remaining_cities);
 
     return tour;
 }
@@ -187,10 +183,7 @@ struct City** run_2_opt(struct City** tour, long* current_distance, long* latest
             }
         }
     }
-    for(i=0;i<number_of_cities;i++){
-        //free(new_tour[i]);
-    }
-    //free(new_tour);
+
     *latest_distance = *current_distance;
     return tour;
 }
@@ -238,6 +231,18 @@ int main(int argc, char **argv){
     int number_of_cities = 0;
     char** words = read_file(&number_of_cities, argv[1]);
     struct City** cities = build_cities(words, number_of_cities);
+
+
+    int j,k;
+    for(j=0;j<number_of_cities;j++){
+        cities[j]->distance_table = malloc(sizeof(int)*number_of_cities);
+        for(k=0;k<number_of_cities;k++){
+            cities[j]->distance_table[k] = distance(cities[j], cities[k]);
+        }
+        //printf("Distance between current node and home: %d\n", cities[j]->distance_table[0]);
+    }
+
+
     struct City** tour = greedy_algorithm(cities, number_of_cities);
     if(basic_mode != 1){
         tour = opt(tour, number_of_cities);
