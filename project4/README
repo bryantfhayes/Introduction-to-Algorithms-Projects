@@ -1,3 +1,5 @@
+PLEASE USE/GRADE THE C CODE OVER THE PYTHON CODE IF YOU MUST CHOOSE
+
 !!NOTE: We recommend using the C code if you must choose one for running competition code.
 Our C code is much more optimized and fast. The python code is easier to understand though, and has additional
 features like  the ability to generate random cities, and the ability to stop processing at 5 minutes and
@@ -8,9 +10,11 @@ display the most recent tour. For competition, please run as follows for the dif
 #3) ./comp test-input-3.txt
 #4) ./comp test-input-4.txt
 #5) ./comp test-input-5.txt
-#6) ./comp test-input-6.txt -b
+#6) ./comp test-input-6.txt
 
 ** The -b flag makes the program only run the greedy algorithm and not the 2-opt algorithm to save time.
+
+To run on each test-input file you can use the ./run.sh shell file script which will just execute them one after the other.
 
 ==========================================================================================================================
 
