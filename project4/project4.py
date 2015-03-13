@@ -1,6 +1,7 @@
 # TRAVELING SALESMAN PROBLEM
-import os, sys, matplotlib, random, time, itertools
-import matplotlib.pyplot as plt
+import os, sys, random, time, itertools
+#import matplotlib
+#import matplotlib.pyplot as plt
 from optparse import OptionParser
 
 currentCity = None
@@ -82,10 +83,10 @@ def calculateTour(algorithm, cities):
         % (len(tour)-1, tourDistanceSum(tour), t1-t0, algorithm.__name__))
     return tour
 
-# Utility function for plotting points on matlab plot
-def plotline(points, style='bo-'):
-    X, Y = [p.x for p in points], [p.y for p in points]
-    plt.plot(X, Y, style)
+# # Utility function for plotting points on matlab plot
+# def plotline(points, style='bo-'):
+#     X, Y = [p.x for p in points], [p.y for p in points]
+#     plt.plot(X, Y, style)
 
 # ------------------- ALGORITHMS ----------------------------------
 # Find every existing tour and pick the best one
@@ -124,11 +125,11 @@ def execute2opt(tour):
             print("%d city tour; Optimized Distance = %.1f" % (
                   len(newTour)-1, tourDistanceSum(newTour)))
 
-            if options.plot:
-                # Plot the tour as blue lines between blue circles, and the starting city as a red square.
-                plotline(list(newTour))
-                plotline([newTour[0]], 'rs')
-                plt.show()
+            # if options.plot:
+            #     # Plot the tour as blue lines between blue circles, and the starting city as a red square.
+            #     plotline(list(newTour))
+            #     plotline([newTour[0]], 'rs')
+            #     plt.show()
 
             if options.file != None:
                 printToFile(options.file, tour)
@@ -137,7 +138,6 @@ def execute2opt(tour):
                 sys.exit(0)
             except SystemExit:
                 os._exit(0)
-        # print "newDistance vs Old" + str(newDistance) + ' vs ' + str(currentDistance)
         try:
             currentDistance = newDistance
             (newTour, newDistance) = run2opt(newTour, currentDistance)
@@ -147,11 +147,11 @@ def execute2opt(tour):
             print("%d city tour; Optimized Distance = %.1f" % (
                   len(newTour)-1, tourDistanceSum(newTour)))
 
-            if options.plot:
-                # Plot the tour as blue lines between blue circles, and the starting city as a red square.
-                plotline(list(newTour))
-                plotline([newTour[0]], 'rs')
-                plt.show()
+            # if options.plot:
+            #     # Plot the tour as blue lines between blue circles, and the starting city as a red square.
+            #     plotline(list(newTour))
+            #     plotline([newTour[0]], 'rs')
+            #     plt.show()
 
             if options.file != None:
                 printToFile(options.file, tour)
@@ -218,12 +218,12 @@ def main():
     if options.file != None:
         printToFile(options.file, tour)
 
-    # Plot graph is -p flag is present
-    if options.plot:
-        # Plot the tour as blue lines between blue circles, and the starting city as a red square.
-        plotline(list(tour))
-        plotline([tour[0]], 'rs')
-        plt.show()
+    # # Plot graph is -p flag is present
+    # if options.plot:
+    #     # Plot the tour as blue lines between blue circles, and the starting city as a red square.
+    #     plotline(list(tour))
+    #     plotline([tour[0]], 'rs')
+    #     plt.show()
 
 if __name__ == '__main__':
     main()

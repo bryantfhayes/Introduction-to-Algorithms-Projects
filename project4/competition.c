@@ -142,25 +142,26 @@ struct City** greedy_algorithm(struct City** cities, int number_of_cities){
     tour[tour_index+1] = malloc(sizeof(struct City));
     tour[tour_index+1] = cities[0];
 
+    for(i=0;i<number_of_cities;i++){
+        //free(remaining_cities[i]);
+    }
+    //free(remaining_cities);
+
     return tour;
 }
 
-struct City** opt_swap(struct City** tour, int i, int j, int number_of_cities){
-    struct City** new_tour = malloc(sizeof(struct City**) * (number_of_cities+1));
+struct City** opt_swap(struct City** tour, struct City** new_tour, int i, int j, int number_of_cities){
     int k;
     int tour_idx = 0;
     for(k=0;k<i;k++){
-        new_tour[tour_idx] = malloc(sizeof(struct City));
         new_tour[tour_idx] = tour[k];
         tour_idx++;
     }
     for(k=j;k>=i;k--){
-        new_tour[tour_idx] = malloc(sizeof(struct City));
         new_tour[tour_idx] = tour[k];
         tour_idx++;
     }
     for(k=j+1;k<number_of_cities+1;k++){
-        new_tour[tour_idx] = malloc(sizeof(struct City));
         new_tour[tour_idx] = tour[k];
 
         tour_idx++;
@@ -172,11 +173,13 @@ struct City** run_2_opt(struct City** tour, long* current_distance, long* latest
     int i,j;
     long new_distance;
     struct City** new_tour = malloc(sizeof(struct City**)*(number_of_cities+1));
-    struct City** temp_tour = malloc(sizeof(struct City**)*(number_of_cities+1));
+    for(i=0;i<number_of_cities;i++){
+        new_tour[i] = malloc(sizeof(struct City));
+    }
     int b;
     for(i=1;i<number_of_cities-1;i++){
         for(j=i+1;j<number_of_cities;j++){
-            new_tour = opt_swap(tour, i, j, number_of_cities);
+            new_tour = opt_swap(tour, new_tour, i, j, number_of_cities);
             new_distance = sum_tour_distance(new_tour, number_of_cities);
             if(new_distance < *current_distance){
                 *latest_distance = new_distance;
@@ -184,6 +187,10 @@ struct City** run_2_opt(struct City** tour, long* current_distance, long* latest
             }
         }
     }
+    for(i=0;i<number_of_cities;i++){
+        //free(new_tour[i]);
+    }
+    //free(new_tour);
     *latest_distance = *current_distance;
     return tour;
 }
@@ -208,9 +215,15 @@ struct City** opt(struct City** old_tour, int number_of_cities){
 }
 
 int main(int argc, char **argv){
+    int basic_mode = 0;
     if(argc < 2){
         printf("Please supply a filename a second command line argument\n");
         exit(2);
+    }
+    if(argc > 2){
+        if(strcmp(argv[2], "-b") == 0){
+            basic_mode = 1;
+        }
     }
 
     FILE * output;
@@ -226,10 +239,11 @@ int main(int argc, char **argv){
     char** words = read_file(&number_of_cities, argv[1]);
     struct City** cities = build_cities(words, number_of_cities);
     struct City** tour = greedy_algorithm(cities, number_of_cities);
-    struct City** improved_tour = opt(tour, number_of_cities);
-
+    if(basic_mode != 1){
+        tour = opt(tour, number_of_cities);
+    }
     int m;
-    long endsum = sum_tour_distance(improved_tour, number_of_cities);
+    long endsum = sum_tour_distance(tour, number_of_cities);
 
     //print to screen code
     printf("%ld\n", endsum);
@@ -238,11 +252,16 @@ int main(int argc, char **argv){
     //print to file code
     fprintf(output, "%ld\n", endsum);
     for(m=0;m<number_of_cities;m++){
-        fprintf(output, "%d\n", improved_tour[m]->id);
+        fprintf(output, "%d\n", tour[m]->id);
+    }
+
+    int i;
+    for(i=0;i<number_of_cities;i++){
+        free(words[i]);
     }
 
     fclose(output);
     free(words);
-    free(cities);
+    //free(cities);
     return 0;
 }

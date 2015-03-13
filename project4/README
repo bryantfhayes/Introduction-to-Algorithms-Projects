@@ -1,3 +1,41 @@
+!!NOTE: We recommend using the C code if you must choose one for running competition code.
+Our C code is much more optimized and fast. The python code is easier to understand though, and has additional
+features like  the ability to generate random cities, and the ability to stop processing at 5 minutes and
+display the most recent tour. For competition, please run as follows for the different cases:
+
+#1) ./comp test-input-1.txt
+#2) ./comp test-input-2.txt
+#3) ./comp test-input-3.txt
+#4) ./comp test-input-4.txt
+#5) ./comp test-input-5.txt -b
+#6) ./comp test-input-6.txt -b
+
+** The -b flag makes the program only run the greedy algorithm and not the 2-opt algorithm to save time.
+
+==========================================================================================================================
+
+C Code:
+
+We have also implemented some C code to run the algorithms even faster for the competition:
+
+To compile:
+
+    "make"
+    OR
+    "gcc -O3 -lm -o program competition.c"
+
+To run:
+
+    "./comp <filename>"
+
+    example:
+
+        "./comp tsp_example_1.txt"
+
+    * This will save a file called "tsp_example_1.txt.tour" with the solution.
+
+=========================================================================================================================
+
 This python script supports various command line flags to alter how the script is ran.
 
 -a / --algorithm <#> : Choose which algorithm to use. [0- Optimal Tour 1- Greedy (basic)]
@@ -19,32 +57,8 @@ Python examples:
 
     *After running the file: 'tsp_example_1.txt.tour' contains the solution data
 
-   -----------------------------------------------------------------------------------------------------------
 
     Find the best possible solution obtained by applying the initial algorithm (in this case basic greedy)
     then by applying the 2-opt improvement algorithm.
 
         "python project4.py -f tsp_example_1.txt -a 1 -i"
-
-
-
-
-C Code:
-
-We have also implemented some C code to run the algorithms even faster for the competition:
-
-To compile:
-
-    "make"
-    OR
-    "gcc -O3 -lm -o program competition.c"
-
-To run:
-
-    "./program <filename>"
-
-    example:
-
-        "./program tsp_example_1.txt"
-
-    * This will save a file called "tsp_example_1.txt.tour" with the solution.
