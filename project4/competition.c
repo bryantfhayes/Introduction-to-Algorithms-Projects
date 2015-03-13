@@ -126,7 +126,6 @@ struct City** greedy_algorithm(struct City** cities, int number_of_cities){
             temp_dist = distance(tour[m], remaining_cities[n]);
             //printf("latest distance: %d when n=%d\n", temp_dist, n);
 
-
             if(temp_dist < min_dist){
                 min_dist = temp_dist;
                 current_city_index = n;
@@ -178,14 +177,9 @@ struct City** run_2_opt(struct City** tour, long* current_distance, long* latest
     struct City** new_tour = malloc(sizeof(struct City**)*(number_of_cities+1));
     struct City** temp_tour = malloc(sizeof(struct City**)*(number_of_cities+1));
     int b;
-    for(b=0;b<number_of_cities+1;b++){
-        temp_tour[b] = malloc(sizeof(struct City));
-        temp_tour[b] = tour[b];
-        printf("tour id %d = %d\n", b, tour[b]->id);
-    }
-    for(i=0;i<number_of_cities-1;i++){
+    for(i=1;i<number_of_cities-1;i++){
         for(j=i+1;j<number_of_cities;j++){
-            new_tour = opt_swap(temp_tour, i, j, number_of_cities);
+            new_tour = opt_swap(tour, i, j, number_of_cities);
             new_distance = sum_tour_distance(new_tour, number_of_cities);
             if(new_distance < *current_distance){
                 *latest_distance = new_distance;
@@ -206,16 +200,13 @@ struct City** opt(struct City** old_tour, int number_of_cities){
     for(i=0;i<number_of_cities+1;i++){
         new_tour[i] = malloc(sizeof(struct City));
         new_tour[i] = old_tour[i];
-        printf("new_tour id %d = %d\n", i, new_tour[i]->id);
     }
     while(new_distance < current_distance){
         current_distance = new_distance;
         new_tour = run_2_opt(new_tour, &current_distance, &latest_distance, number_of_cities);
         new_distance = latest_distance;
     }
-    for(i=0;i<number_of_cities+1;i++){
-        printf("-new_tour id %d = %d\n", i, new_tour[i]->id);
-    }
+
     return new_tour;
 }
 
@@ -235,7 +226,6 @@ int main(int argc, char **argv){
     for(m=0;m<number_of_cities;m++){
         printf("%d\n", improved_tour[m]->id);
     }
-    printf("SUM: %ld\n", sum_tour_distance(improved_tour, number_of_cities));
 
     free(words);
     free(cities);

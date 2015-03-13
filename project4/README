@@ -10,6 +10,8 @@ This python script supports various command line flags to alter how the script i
 
 -r / --random <#> : Choose to randomly build a given number of cities at random locations (0-1000, 0-1000)
 
+-i / --improve <#> : Run the 2-opt improvement algorithm to get a better solution
+
 Examples:
 
     Find the best tour possible using the greedy(basic) algorithm, where city location is based on a file:
@@ -17,3 +19,29 @@ Examples:
         "python project4.py -f tsp_example_1.txt -a 1"
 
     *After running the file: 'tsp_example_1.txt.tour' contains the solution data
+
+    ----
+
+    Find the best possible solution obtained by applying the initial algorithm (in this case basic greedy)
+    then by applying the 2-opt improvement algorithm.
+
+        "python project4.py -f tsp_example_1.txt -a 1 -i"
+
+
+C Code:
+
+We have also implemented some C code to run the algorithms even faster for the competition:
+
+To compile:
+
+    "gcc -O3 -lm -o program competition.c"
+
+To run:
+
+    "./program <filename>"
+
+    example:
+
+        "./program tsp_example_1.txt"
+
+    * This will save a file called "tsp_example_1.txt.tour" with the solution.

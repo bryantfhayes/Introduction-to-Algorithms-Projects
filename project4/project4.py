@@ -166,8 +166,6 @@ def execute2opt(tour):
     return newTour
 
 def run2opt(tour, currentDistance):
-    for n in xrange(len(tour)):
-        print tour[n].id
     for i in xrange(len(tour)-1):
         for k in xrange(i + 1, len(tour)):
             newTour = optswap(tour, i, k)
