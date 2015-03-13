@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
+#include <time.h>
 
 struct City{
     int id;
@@ -198,7 +199,15 @@ struct City** opt(struct City** old_tour, int number_of_cities){
         new_tour[i] = malloc(sizeof(struct City));
         new_tour[i] = old_tour[i];
     }
+    clock_t begin;
+    double time_spent;
+    begin = clock();
     while(new_distance < current_distance){
+        time_spent = (double)(clock() - begin) / CLOCKS_PER_SEC;
+        if(time_spent >= 290.0){
+            printf("RAN OUT OF TIME; Returning best so far...");
+            break;
+        }
         current_distance = new_distance;
         new_tour = run_2_opt(new_tour, &current_distance, &latest_distance, number_of_cities);
         new_distance = latest_distance;
